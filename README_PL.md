@@ -76,7 +76,7 @@ Poniższe kroki pozwalają uruchomić projekt lokalnie w kilka minut.
 ### 1. Klonowanie repozytorium
 
 ```bash
-git clone [https://github.com/btnowakowski/mvc_projekt_semestralny.git]
+git clone https://github.com/btnowakowski/mvc_projekt_semestralny.git
 cd mvc_projekt_semestralny
 ```
 
