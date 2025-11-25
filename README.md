@@ -128,20 +128,47 @@ For local development you can:
 - either configure PostgreSQL and fill DB_* variables,
 - or temporarily switch the `DATABASES` setting back to SQLite.
 
-### 5. Run migrations
+```env
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+```
+
+### 5. Enabling Admin Panel
+The Django admin panel is disabled by default in production.
+
+To enable it locally, open:
+
+```
+mvc_projekt_semestralny/urls.py
+```
+
+and uncomment:
+
+```python
+path("admin/", admin.site.urls),
+```
+
+Admin interface will be available at:
+http://127.0.0.1:8000/admin/
+
+### 6. Run migrations
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 6. Create a superuser (optional, useful for Django `/admin/`)
+### 7. Create a superuser (optional, useful for Django `/admin/`)
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 7. Run the development server
+### 8. Run the development server
 
 ```bash
 python manage.py runserver
