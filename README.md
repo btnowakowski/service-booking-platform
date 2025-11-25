@@ -43,6 +43,8 @@ Features:
   - add / edit / delete time slots
   - toggle slot activity (is_active)
 - Cleaner UI integrated with the main dark theme
+  <img width="1020" height="857" alt="image" src="https://github.com/user-attachments/assets/a8ebc129-d447-438f-894a-dd15a1878cca" />
+
 
 ### UX and UI
 - Global dark theme with custom CSS (`booking/static/booking/style.css`)
