@@ -82,7 +82,7 @@ Below is a straightforward way to run the project locally for development.
 ### 1. Clone the repository
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/btnowakowski/mvc_projekt_semestralny.git
 cd mvc_projekt_semestralny
 ```
 
