@@ -4,8 +4,9 @@
 Aplikacja pozwala użytkownikom przeglądać dostępne usługi, rezerwować wolne terminy w widoku kalendarza oraz śledzić status swoich rezerwacji.  
 Administratorzy otrzymują dedykowany panel, w którym mogą zarządzać usługami, terminami oraz akceptować lub odrzucać rezerwacje.
 
-To repozytorium zawiera **wyłącznie projekt Django** (bez Dockera i plików serwerowych).  
-Kod jest czysty, prosty do uruchomienia i przeznaczony do lokalnego developmentu.
+Repozytorium zawiera projekt Django oraz Dockerfile do budowania obrazu aplikacji, ale nie zawiera pełnej infrastruktury serwerowej (brak docker-compose, konfiguracji nginx, certyfikatów, skryptów wdrożeniowych).
+Repo jest celowo uproszczone — czytelne, zrozumiałe i przygotowane do wygodnego uruchomienia lokalnie.
+
 
 ---
 
