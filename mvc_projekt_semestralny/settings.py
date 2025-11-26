@@ -17,20 +17,49 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# ─────────────────────────────────────────────────────────────
+# ENV / DEBUG / SECRET
+# ─────────────────────────────────────────────────────────────
 
 load_dotenv(BASE_DIR / ".env")
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
-ALLOWED_HOSTS = [
-    h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()
-]
-if not ALLOWED_HOSTS:
+# DEBUG z .env (domyślnie 1 = tryb deweloperski)
+DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
+
+# Sekret z ENV, z awaryjną wartością w dev
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-secret-key")
+
+# ─────────────────────────────────────────────────────────────
+# HOSTS / CSRF – różne dla DEV i PROD
+# ─────────────────────────────────────────────────────────────
+
+if DEBUG:
+    # Lokalne dev/test
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1",
+        "http://localhost",
+    ]
+else:
+    # Produkcja – czytamy z ENV
+    ALLOWED_HOSTS = [
+        h.strip()
+        for h in os.getenv("ALLOWED_HOSTS", "").split(",")
+        if h.strip()
+    ]
+    if not ALLOWED_HOSTS:
+        # awaryjnie, gdy zapomnisz ustawić ENV
+        ALLOWED_HOSTS = ["accommodations.site", "www.accommodations.site"]
+
+    CSRF_TRUSTED_ORIGINS = [
+        h.strip()
+        for h in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+        if h.strip()
+    ]
+
+# ─────────────────────────────────────────────────────────────
 # Application definition
+# ─────────────────────────────────────────────────────────────
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -71,32 +100,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mvc_projekt_semestralny.wsgi.application"
 
+# ─────────────────────────────────────────────────────────────
+# Database – SQLite w DEV, Postgres w PROD
+# ─────────────────────────────────────────────────────────────
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+if DEBUG:
+    # Prostszą bazą w dev jest SQLite
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    # Produkcja – Postgres z ENV (tak jak w docker-compose)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME"),
+            "USER": os.environ.get("DB_USER"),
+            "PASSWORD": os.environ.get("DB_PASSWORD"),
+            "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+        }
+    }
 
-
+# ─────────────────────────────────────────────────────────────
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# ─────────────────────────────────────────────────────────────
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -113,49 +144,65 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+# ─────────────────────────────────────────────────────────────
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# ─────────────────────────────────────────────────────────────
 
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "CET"
+TIME_ZONE = "Europe/Warsaw"
 
 USE_I18N = True
-
 USE_TZ = True
 
-
+# ─────────────────────────────────────────────────────────────
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# ─────────────────────────────────────────────────────────────
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# ─────────────────────────────────────────────────────────────
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# ─────────────────────────────────────────────────────────────
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
 }
 
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 0
-SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-SECURE_HSTS_PRELOAD = False
+# ─────────────────────────────────────────────────────────────
+# Security / HTTPS – per DEBUG
+# ─────────────────────────────────────────────────────────────
 
-CSRF_TRUSTED_ORIGINS = [
-    h.strip() for h in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()
-]
+if DEBUG:
+    SECURE_SSL_REDIRECT = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    SECURE_PROXY_SSL_HEADER = None
+    USE_X_FORWARDED_HOST = False
+else:
+    SECURE_SSL_REDIRECT = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 0  # możesz podnieść jak będziesz pewny setupu
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
+
+# ─────────────────────────────────────────────────────────────
+# Auth redirects
+# ─────────────────────────────────────────────────────────────
 
 LOGIN_REDIRECT_URL = "/services/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = "/accounts/login/"
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-USE_X_FORWARDED_HOST = True  # opcjonalnie, ale warto przy reverse proxy
