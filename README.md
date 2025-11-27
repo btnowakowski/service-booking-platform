@@ -88,7 +88,7 @@ Below is a straightforward way to run the project locally for development.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/btnowakowski/mvc_projekt_semestralny.git
+git clone https://github.com/btnowakowski/service-booking-platform
 cd mvc_projekt_semestralny
 ```
 
