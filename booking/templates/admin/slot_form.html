@@ -10,19 +10,38 @@
     <form method="post" class="row g-3">
     {% csrf_token %}
 
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger col-12">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
     <div class="col-12">
         <label class="form-label">Usługa</label>
         {{ form.service }}
+        {% if form.service.errors %}
+            <div class="text-danger small">{{ form.service.errors }}</div>
+        {% endif %}
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Start</label>
-        {{ form.start }}
+        <label class="form-label">Data</label>
+        {{ form.slot_date }}
+        {% if form.slot_date.errors %}
+            <div class="text-danger small">{{ form.slot_date.errors }}</div>
+        {% endif %}
     </div>
 
     <div class="col-md-6">
-        <label class="form-label">Koniec</label>
-        {{ form.end }}
+        <label class="form-label">Godzina i czas trwania</label>
+        <select class="form-select" id="id_slots_select">
+            <option value="">Wybierz termin</option>
+        </select>
+        <!-- Hidden fields where we save the chosen value -->
+        {{ form.generated_slots }}
+        {% if form.generated_slots.errors %}
+            <div class="text-danger small">{{ form.generated_slots.errors }}</div>
+        {% endif %}
     </div>
 
     <div class="col-12 form-check mt-2">
@@ -31,11 +50,71 @@
     </div>
 
     <div class="d-flex gap-2 mt-2">
-        <button class="btn btn-success">Zapisz</button>
+        <button type="submit" class="btn btn-success">Zapisz</button>
         <a class="btn btn-outline-light" href="{% url 'booking:admin_slots' %}">Anuluj</a>
     </div>
     </form>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceSelect = document.getElementById('id_service_select');
+    const dateSelect = document.getElementById('id_slot_date');
+    const slotsVisualSelect = document.getElementById('id_slots_select');
+    const slotsHiddenInput = document.getElementById('id_generated_slots');
+
+    async function loadSlots() {
+        const serviceId = serviceSelect.value;
+        const slotDate = dateSelect.value;
+        
+        if (!serviceId || !slotDate) {
+            slotsVisualSelect.innerHTML = '<option value="">Wybierz usługę i datę</option>';
+            slotsHiddenInput.value = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `{% url 'booking:api_get_slots' %}?service_id=${serviceId}&slot_date=${slotDate}`
+            );
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+
+            if (data.slots && data.slots.length > 0) {
+                slotsVisualSelect.innerHTML = '<option value="">Wybierz termin</option>' +
+                    data.slots.map(slot => 
+                        `<option value="${slot.value}">${slot.label}</option>`
+                    ).join('');
+                slotsHiddenInput.value = '';
+            } else {
+                slotsVisualSelect.innerHTML = '<option value="">Brak dostępnych terminów na tę datę</option>';
+                slotsHiddenInput.value = '';
+            }
+        } catch (error) {
+            console.error('Błąd:', error);
+            slotsVisualSelect.innerHTML = '<option value="">Błąd ładowania terminów</option>';
+            slotsHiddenInput.value = '';
+        }
+    }
+
+    // When user selects a slot, update the hidden input
+    slotsVisualSelect.addEventListener('change', function() {
+        slotsHiddenInput.value = this.value;
+    });
+
+    serviceSelect.addEventListener('change', loadSlots);
+    dateSelect.addEventListener('change', loadSlots);
+
+    // Load slots if both service and date are pre-selected (e.g., in edit mode)
+    if (serviceSelect.value && dateSelect.value) {
+        loadSlots();
+    }
+});
+</script>
 
 {% endblock %}

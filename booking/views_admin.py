@@ -19,6 +19,9 @@ from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import timedelta
 import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from django.contrib import messages
 
 
 @method_decorator(admin_required, name="dispatch")
@@ -138,6 +141,23 @@ class SlotAdminCreate(CreateView):
     template_name = "admin/slot_form.html"
     success_url = reverse_lazy("booking:admin_slots")
 
+    def form_valid(self, form):
+        start = form.cleaned_data.get("start")
+        end = form.cleaned_data.get("end")
+        service = form.cleaned_data.get("service")
+
+        # Finalnie, zawsze ustaw wartości
+        form.instance.start = start
+        form.instance.end = end
+        form.instance.service = service
+
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f"✓ Termin '{self.object.service.name}' został pomyślnie utworzony!",
+        )
+        return response
+
 
 @method_decorator(admin_required, name="dispatch")
 class SlotAdminUpdate(UpdateView):
@@ -145,6 +165,23 @@ class SlotAdminUpdate(UpdateView):
     form_class = SlotAdminForm
     template_name = "admin/slot_form.html"
     success_url = reverse_lazy("booking:admin_slots")
+
+    def form_valid(self, form):
+        start = form.cleaned_data.get("start")
+        end = form.cleaned_data.get("end")
+        service = form.cleaned_data.get("service")
+
+        # Finalnie, zawsze ustaw wartości
+        form.instance.start = start
+        form.instance.end = end
+        form.instance.service = service
+
+        response = super().form_valid(form)
+        messages.success(
+            self.request,
+            f"✓ Termin '{self.object.service.name}' został pomyślnie zaktualizowany!",
+        )
+        return response
 
 
 @method_decorator(admin_required, name="dispatch")
@@ -164,3 +201,74 @@ class ReservationAdminList(ListView):
         return Reservation.objects.select_related("user", "service", "slot").order_by(
             "-created_at"
         )
+
+
+from django.utils import timezone
+from datetime import datetime, timedelta
+
+
+@require_GET
+@admin_required
+def get_slots_for_service(request):
+    """API endpoint returning available slots for a service and date."""
+    service_id = request.GET.get("service_id")
+    slot_date = request.GET.get("slot_date")
+
+    if not service_id or not slot_date:
+        return JsonResponse({"slots": []})
+
+    try:
+        service = Service.objects.get(id=service_id)
+    except Service.DoesNotExist:
+        return JsonResponse({"slots": [], "error": "Usługa nie znaleziona"}, status=404)
+
+    try:
+        # Parsuj datę
+        slot_date_obj = datetime.fromisoformat(slot_date).date()
+    except ValueError:
+        return JsonResponse(
+            {"slots": [], "error": "Nieprawidłowy format daty"}, status=400
+        )
+
+    # Twórz aware datetimes
+    start_time = timezone.make_aware(
+        datetime.combine(slot_date_obj, datetime.min.time()).replace(
+            hour=9, minute=0, second=0, microsecond=0
+        )
+    )
+    end_time = timezone.make_aware(
+        datetime.combine(slot_date_obj, datetime.min.time()).replace(
+            hour=22, minute=0, second=0, microsecond=0
+        )
+    )
+
+    # Pobierz zajęte sloty
+    occupied_slots = TimeSlot.objects.filter(
+        service=service,
+        start__date=slot_date_obj,
+        is_active=True,
+    ).values_list("start", "end")
+
+    slots = []
+    current = start_time
+
+    while current + timedelta(minutes=service.slot_duration) <= end_time:
+        slot_end = current + timedelta(minutes=service.slot_duration)
+
+        # Sprawdź czy slot jest zajęty
+        is_occupied = any(
+            start <= current < end or start < slot_end <= end
+            for start, end in occupied_slots
+        )
+
+        if not is_occupied:
+            slots.append(
+                {
+                    "value": f"{current.isoformat()}|{slot_end.isoformat()}",
+                    "label": f"{current.strftime('%H:%M')} - {slot_end.strftime('%H:%M')}",
+                }
+            )
+
+        current = slot_end
+
+    return JsonResponse({"slots": slots})

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load tz %}
 {% block content %}
 
 <div class="admin-hero">
@@ -33,9 +34,9 @@
           <td>{{ r.user.username }}</td>
           <td>{{ r.service.name }}</td>
         {% if r.slot %}
-            <td>{{ r.slot.start|date:"d.m.Y H:i" }}</td>
+            <td>{{ r.slot.start|localtime|date:"d.m.Y H:i" }}</td>
         {% else %}
-            <td>{{ r.archived_start|date:"d.m.Y H:i" }}</td>
+            <td>{{ r.archived_start|localtime|date:"d.m.Y H:i" }}</td>
         {% endif %}
           
           <td>

@@ -27,6 +27,11 @@ urlpatterns = [
     ),
     path("my/<int:pk>/cancel/", views.cancel_reservation, name="reservation_cancel"),
     path("api/services/<int:pk>/slots/", views.free_slots_api, name="free_slots_api"),
+    path(
+        "admin-panel/api/slots/",
+        views_admin.get_slots_for_service,
+        name="api_get_slots",
+    ),
     path("accounts/register/", views.RegisterView.as_view(), name="register"),
     path(
         "admin-panel/", views_admin.AdminDashboardView.as_view(), name="admin_dashboard"

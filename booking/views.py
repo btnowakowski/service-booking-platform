@@ -61,6 +61,12 @@ class ReservationCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         slot = form.cleaned_data["slot"]
+
+        # Slot must be in the future
+        if slot.start < timezone.now():
+            form.add_error("slot", "Nie możesz zarezerwować terminu w przeszłości.")
+            return self.form_invalid(form)
+
         if Reservation.objects.filter(
             slot=slot,
             status__in=[Reservation.Status.PENDING, Reservation.Status.APPROVED],
@@ -151,7 +157,9 @@ def cancel_reservation(request, pk):
 
 def free_slots_api(request, pk):
     service = get_object_or_404(Service, pk=pk)
-    qs = TimeSlot.objects.filter(service=service, is_active=True).exclude(
+    qs = TimeSlot.objects.filter(
+        service=service, is_active=True, start__gte=timezone.now()
+    ).exclude(
         reservation__status__in=[
             Reservation.Status.PENDING,
             Reservation.Status.APPROVED,

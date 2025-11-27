@@ -43,18 +43,14 @@ if DEBUG:
 else:
     # Produkcja – czytamy z ENV
     ALLOWED_HOSTS = [
-        h.strip()
-        for h in os.getenv("ALLOWED_HOSTS", "").split(",")
-        if h.strip()
+        h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()
     ]
     if not ALLOWED_HOSTS:
         # awaryjnie, gdy zapomnisz ustawić ENV
         ALLOWED_HOSTS = ["accommodations.site", "www.accommodations.site"]
 
     CSRF_TRUSTED_ORIGINS = [
-        h.strip()
-        for h in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
-        if h.strip()
+        h.strip() for h in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()
     ]
 
 # ─────────────────────────────────────────────────────────────
@@ -192,7 +188,7 @@ else:
     SECURE_SSL_REDIRECT = True
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 0  # możesz podnieść jak będziesz pewny setupu
+    SECURE_HSTS_SECONDS = 1
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_HSTS_PRELOAD = False
 

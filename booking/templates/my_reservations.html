@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load tz %}
 {% block content %}
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -57,9 +58,9 @@
           <div class="res-meta text-muted-2">
             Termin:
             {% if r.slot %}
-              {{ r.slot.start|date:"d.m.Y H:i" }}
+              {{ r.slot.start|localtime|date:"d.m.Y H:i" }}
             {% else %}
-              {{ r.archived_start|date:"d.m.Y H:i" }}
+              {{ r.archived_start|localtime|date:"d.m.Y H:i" }}
               <span class="small ms-1">(archiwalny)</span>
             {% endif %}
           </div>
