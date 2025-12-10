@@ -205,10 +205,52 @@ Production setup is intentionally not stored in this repo, but the app has been 
 - Docker + docker-compose
 - Gunicorn as WSGI server
 - Nginx as reverse proxy
-- Let’s Encrypt certificates (Certbot)
+- Let's Encrypt certificates (Certbot)
 - PostgreSQL as the database
 
-Those details are infrastructure‑specific, so they’re not required to understand or run the code locally.
+Those details are infrastructure‑specific, so they're not required to understand or run the code locally.
+
+---
+
+## Running with Docker Compose
+
+The fastest way to run the project locally with full stack.
+
+### Option 1: Full stack (Django + PostgreSQL)
+
+```bash
+# Start the app with PostgreSQL database
+docker-compose up --build
+
+# In a second terminal, run migrations and create superuser
+docker exec -it booking_web python manage.py migrate
+docker exec -it booking_web python manage.py createsuperuser
+```
+
+The app will be available at: http://localhost:8000/
+
+### Option 2: Development mode (Django + SQLite)
+
+```bash
+# Run only the app without Postgres
+docker-compose --profile dev up web-dev --build
+```
+
+### Useful Docker commands
+
+```bash
+# Stop containers
+docker-compose down
+
+# Stop + remove volumes (clean database)
+docker-compose down -v
+
+# Logs
+docker-compose logs -f web
+
+# Enter container shell
+docker exec -it booking_web bash
+```
 
 ---
 

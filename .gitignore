@@ -28,3 +28,5 @@ local_settings.py
 htmlcov/
 .pytest_cache/
 
+/screenshots/
+Sprawozdanie_BNowakowski_141961.md

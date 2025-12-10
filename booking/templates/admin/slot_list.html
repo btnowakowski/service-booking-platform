@@ -28,7 +28,7 @@
       </thead>
       <tbody>
       {% for t in object_list %}
-        <tr>
+        <tr data-testid='slot'>
           <td>{{ t.service.name }}</td>
           <td>{{ t.start|localtime|date:"Y-m-d H:i" }}</td>
           <td>{{ t.end|localtime|date:"Y-m-d H:i" }}</td>

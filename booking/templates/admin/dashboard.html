@@ -20,7 +20,7 @@
       <span class="stat-dot"></span>
       <div>
         <div class="text-muted-2 small">Wszystkie</div>
-        <div class="fs-4 fw-bold">{{ stats.all }}</div>
+        <div class="fs-4 fw-bold" data-testid='stats-all'>{{ stats.all }}</div>
       </div>
     </div>
   </div>
@@ -30,7 +30,7 @@
       <span class="stat-dot" style="background:#f0ad4e; box-shadow:0 0 12px #f0ad4e;"></span>
       <div>
         <div class="text-muted-2 small">Oczekujące</div>
-        <div class="fs-4 fw-bold">{{ stats.pending }}</div>
+        <div class="fs-4 fw-bold" data-testid='stats-pending'>{{ stats.pending }}</div>
       </div>
     </div>
   </div>
@@ -40,7 +40,7 @@
       <span class="stat-dot" style="background:#22c55e; box-shadow:0 0 12px #22c55e;"></span>
       <div>
         <div class="text-muted-2 small">Potwierdzone</div>
-        <div class="fs-4 fw-bold">{{ stats.approved }}</div>
+        <div class="fs-4 fw-bold" data-testid='stats-approved'>{{ stats.approved }}</div>
       </div>
     </div>
   </div>
@@ -50,7 +50,7 @@
       <span class="stat-dot" style="background:#64748b; box-shadow:0 0 12px #64748b;"></span>
       <div>
         <div class="text-muted-2 small">Anulowane</div>
-        <div class="fs-4 fw-bold">{{ stats.cancelled }}</div>
+        <div class="fs-4 fw-bold" data-testid='stats-canceled'>{{ stats.cancelled }}</div>
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@
     </a>
   </div>
 
-  <ul class="mb-0">
+  <ul class="mb-0" data-testid='pending-reservations-list'>
     {% for r in pending %}
       <li class="py-2 border-bottom border-secondary-subtle d-flex justify-content-between align-items-center">
         <div>
@@ -93,7 +93,7 @@
         </div>
       </li>
     {% empty %}
-      <li class="text-muted-2">Brak oczekujących rezerwacji.</li>
+      <li class="text-muted-2" data-testid='no-pending-reservations'>Brak oczekujących rezerwacji.</li>
     {% endfor %}
   </ul>
 </div>

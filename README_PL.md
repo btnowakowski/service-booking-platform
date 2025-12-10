@@ -188,18 +188,58 @@ Po tym w menu pojawi się link **Admin Panel**.
 
 ---
 
+## Uruchomienie z Docker Compose
+
+Najszybszy sposób na uruchomienie projektu lokalnie.
+
+### Opcja 1: Pełny stack (Django + PostgreSQL)
+
+```bash
+# Uruchom aplikację z bazą PostgreSQL
+docker-compose up --build
+
+# W drugim terminalu wykonaj migracje i utwórz superusera
+docker exec -it booking_web python manage.py migrate
+docker exec -it booking_web python manage.py createsuperuser
+```
+
+Aplikacja będzie dostępna pod: http://localhost:8000/
+
+### Opcja 2: Tryb deweloperski (Django + SQLite)
+
+```bash
+# Uruchom tylko aplikację bez Postgres
+docker-compose --profile dev up web-dev --build
+```
+
+### Przydatne komendy Docker
+
+```bash
+# Zatrzymanie kontenerów
+docker-compose down
+
+# Zatrzymanie + usunięcie wolumenów (czysta baza)
+docker-compose down -v
+
+# Logi
+docker-compose logs -f web
+
+# Wejście do kontenera
+docker exec -it booking_web bash
+```
+
+---
+
 ## Uwaga o produkcji (wysoki poziom)
 
-W repozytorium celowo nie ma plików serwerowych.  
+W repozytorium znajduje się `Dockerfile` oraz `docker-compose.yml` do testowania lokalnego.  
 Projekt działał produkcyjnie w środowisku opartym o:
 
 - Docker + docker-compose  
 - Gunicorn  
 - Nginx jako reverse proxy  
-- Certbot (Let’s Encrypt)  
+- Certbot (Let's Encrypt)  
 - PostgreSQL  
-
-Nie jest to jednak wymagane do zrozumienia ani uruchomienia kodu lokalnie.
 
 ---
 
