@@ -14,6 +14,7 @@ from django.views.generic import (
 from django.utils import timezone
 
 from .models import Service, TimeSlot, Reservation
+from django.db.models import Q
 from .forms import RegisterForm, ReservationForm
 
 
@@ -24,6 +25,18 @@ class HomeView(TemplateView):
 class ServiceListView(ListView):
     model = Service
     template_name = "service_list.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        q = self.request.GET.get("q", "").strip()
+        if q:
+            qs = qs.filter(Q(name__icontains=q) | Q(description__icontains=q))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["query"] = self.request.GET.get("q", "")
+        return ctx
 
 
 class ServiceDetailView(DetailView):
